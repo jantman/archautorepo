@@ -9,11 +9,14 @@ Automatic Arch Linux package rebuilds and repository creation.
 
 This is just a concept right now. The plan is:
 
-* Maintain a Git repository containing your PKGBUILDS (and their patches, etc.) Per the `advice <https://gist.github.com/jantman/e9a6b9ed360f67bb780e>`_ of many in the Arch community, don't build anything from AUR without examining it manually first, and pulling it into local source control.
-* A script that takes a pointer to an external (i.e. AUR) package and either pulls it into your git repo, or updates it if already present (you then manually review the diff and commit it).
-* A metadata generation script, which essentially fires up an isolated bash session (in a chroot as a different user? in a `Docker <https://www.docker.com/>`_ container? in a Vagrant VM?), sources the PKGBUILD file, captures the important variables, and writes them out to a metadata.json file which is committed back to the git repo.
-* A script that "figures out" (possibly with additional configuration) the current/latest version of a package's upstream, and is capable of updating a PKGBUILD file for it - essentially, the configuration that we need in order to do automated builds of upstream releases or nightly source control snapshots. The updated PKGBUILD should be committed to git and pushed, with a special name (i.e. AUTOPKGBUILD.release and AUTOPKGBUILD.nightly).
-* A package build script that installs required dependencies in an isolated environment (once again, chroot, Docker, or a full-out VM) and then triggers a `makepkg` run there, capturing the output (both logs and the resulting tarball) and the return code (overall success/failure).
+* Have a local configuration file (in a fork of this repo? somewhere on disk? still TBD) that lists git repository URLs for packages you want to build (i.e. AUR repos, or your own laid out the same way) and the ref (commit hash/branch/tag) to build.
+* The main arch-autorepo script takes a pointer to that config file, and builds all packages in it, or a subset of them
+* A helper script to add git repos (by URL) to the config file
+* A helper script that clones all repos in the config file, and if there are any commits on master past the hash specified in the config file, shows you a diff to review. Assuming you accept it, the config file is updated for the new hash (this is intended to be an easy way for you to manually verify the safety of package contants, per the `AUR documentation <https://wiki.archlinux.org/index.php/Arch_User_Repository#Build_and_install_the_package>`_).
+* An option to bypass any commit hashes in the config file, and just build everything from master.
+* The build process will run inside a `Docker <https://www.docker.com/>`_ container for safety and isolation.
+* A metadata generation script, which essentially fires up an isolated bash session, sources the PKGBUILD file, captures the important variables, and saves them for later use.
+* The main script which installs required dependencies in a clean container, copies in (or mounts?) the source and then triggers a `makepkg` run, capturing the output (both logs and the resulting tarball) and the return code (overall success/failure).
 * A test script which uses a clean container or VM and attempts to install the newly-build package, run a pacman `--check` on it, and optionally run some manually-defined test commands (like actually running the software from the package).
 * Assuming the build and test both complete, a script to update the package in a `custom Pacman repository <https://wiki.archlinux.org/index.php/Pacman_tips#Custom_local_repository>`_ and then push that updated repository to Amazon S3.
 * `makepkg` logging should also be pushed to S3, along with an HTML summary of the build (assuming at least one package was built) with links to the log output and git diffs; this should be able to be configured to be sent via email.
@@ -23,7 +26,6 @@ Thoughts/Questions
 
 * can we use one or more of the `AUR Helpers <https://wiki.archlinux.org/index.php/AUR_helpers>`_ to do part of this?
 * With this amount of logic, should we just use Jenkins? Then this project would essentially be a set of Jenkins jobs (and a list of required plugins and packages) and the code that they run. That would make a LOT of this simpler, though we'd need good installation instructions (maybe a puppet module for the dependencies). The main questions are, even if we do something like `Jenkins in Docker <https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+with+Docker>`_, would that be too much resource consumption on a "home" system (either processor/CPU or disk consumption) for this project?
-* To do this, we'd really need some up-to-date containers or VMs running Arch - at least the last official release image, and that plus the latest updates. Ideally this process would be automated too, but that's a totally different problem.
 
 References
 ==========
