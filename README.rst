@@ -21,15 +21,30 @@ This is just a concept right now. The plan is:
 * Assuming the build and test both complete, a script to update the package in a `custom Pacman repository <https://wiki.archlinux.org/index.php/Pacman_tips#Custom_local_repository>`_ and then push that updated repository to Amazon S3.
 * `makepkg` logging should also be pushed to S3, along with an HTML summary of the build (assuming at least one package was built) with links to the log output and git diffs; this should be able to be configured to be sent via email.
 
-Thoughts/Questions
-==================
+Why?
+=====
 
-* can we use one or more of the `AUR Helpers <https://wiki.archlinux.org/index.php/AUR_helpers>`_ to do part of this?
-* With this amount of logic, should we just use Jenkins? Then this project would essentially be a set of Jenkins jobs (and a list of required plugins and packages) and the code that they run. That would make a LOT of this simpler, though we'd need good installation instructions (maybe a puppet module for the dependencies). The main questions are, even if we do something like `Jenkins in Docker <https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+with+Docker>`_, would that be too much resource consumption on a "home" system (either processor/CPU or disk consumption) for this project?
+I use a bunch of packages from the AUR, and it's a pain to rebuild them when they're updated or dependencies are updated. I'm an automation engineer
+at my day job, so I do stuff like this all the time. It seems crazy that I have to do all this manually. It also seems that there's no good existing
+solution for this; I can't fathom how the people who maintain multiple AUR packages stay sane.
+
+**Why not Jenkins?** At first glance, it does seem like Jenkins would be a good solution for this. However, there are three main reasons why I decided
+against using it:
+
+1. It's relatively complex software. I want this solution to be something low-overhead and with a low barrier to entry, so as many people
+   can benefit from it as possible. For people who haven't used - let alone administered - Jenkins before, it can be a bit intimidating.
+2. While Jenkins has a really good plugin ecosystem, there don't seem to be any for Arch (like ``makepkg`` or ``repo-add``). I'm not
+   terribly good with Java, so I'm not writing them.
+3. Dependency resolution. While the initial logic is going to be pretty naive, I'd really like to eventually build in working, reasonably
+   complete dependency solving logic. This can include examining the packages installed in the Docker container and the metadata of the packages
+   we're trying to build (so we know if dependencies are unmet before we run ``makepkg``) and, when we're building a set of interdependent
+   packages, building them in the right order. There doesn't seem to be any sane way to acheive that in Jenkins, except either re-running
+   the jobs over and over again until they succeed or altering the job configuration outside of Jenkins.
 
 References
 ==========
 
+* can we use one or more of the `AUR Helpers <https://wiki.archlinux.org/index.php/AUR_helpers>`_ to do part of this?
 * The `virtualbox/Vagrant box <https://github.com/jantman/packer-arch-workstation>`_ that I use for testing my archlinux workstation puppet stuff
 * `Dockerfile <http://ebalaskas.gr/wiki/Dockerfile/archlinux/openssh>`_ for Arch with SSH
 * `how to create a Docker image <https://github.com/BlackIkeEagle/docker-images/blob/master/blackikeeagle/archlinux/create-docker-baseimg.sh>`_ using pacstrap, and the related `Docker hub <https://registry.hub.docker.com/u/base/archlinux/>`_
