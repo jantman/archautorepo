@@ -28,7 +28,7 @@ Thoughts/Questions
 References
 ==========
 
-* Arch Vagrant boxes - so far, all the ones that I could `find <https://github.com/terrywang/vagrantboxes/blob/master/archlinux-x86_64.md>`_ are hand-made. Crap.
+* The `virtualbox/Vagrant box <https://github.com/jantman/packer-arch-workstation>`_ that I use for testing my archlinux workstation puppet stuff
 * `Dockerfile <http://ebalaskas.gr/wiki/Dockerfile/archlinux/openssh>`_ for Arch with SSH
 * `how to create a Docker image <https://github.com/BlackIkeEagle/docker-images/blob/master/blackikeeagle/archlinux/create-docker-baseimg.sh>`_ using pacstrap, and the related `Docker hub <https://registry.hub.docker.com/u/base/archlinux/>`_
 * Docker's official `installation instructions <https://docs.docker.com/installation/archlinux/>`_ for Arch just use `yaourt` for the git versions.
@@ -37,3 +37,32 @@ References
 * Can anything from `OBS <http://openbuildservice.org/>`_ help us? It's probably too heavy-weight itself, but maybe some parts are useful?
 * maybe `repose <https://github.com/vodik/repose>`_ contains the logic we need to work with the repository?
 * `openSuSE Build Service <https://build.opensuse.org/>`_ is publicly accessible and free, and can build for many popular distributions including "Arch Core" and "Arch Extras". It has a `ReST API <https://build.opensuse.org/apidocs/>`_, so theoretically it could be automated to provide the build infrastructure. It also _seems_ to allow building of any package.
+* The source to Arch/Pacman's `repo-add <https://projects.archlinux.org/pacman.git/tree/scripts/repo-add.sh.in>`_, which is just a shell script
+
+Status
+======
+
+* Docker is at least minimally working:
+  * Build the docker image: ``docker build -t archautorepo .``; It should exit with something like ``Successfully built <IMAGE_ID>``
+  * Run bash in the image to confirm it works: ``docker run --name=initial_archautorepo --rm -i -t archautorepo /bin/bash`` (the ``--rm`` automatically deletes the container when exited)
+* Docker notes:
+  * List all containers with ``docker ps -a`` and then delete the container you just used with ``docker rm initial_archautorepo``
+  * You can also add a ``--rm`` to the ``run`` command to remove the container automatically when the process exits
+  * mount pwd as a volume at /localfs and run the command in it: ``docker run -v /localfs:\`pwd\` -w /localfs -i -t IMAGE_NAME COMMAND``
+  * ``docker run --cidfile /path/to/file`` writes the container ID to /path/to/file and closes the file when the run exits
+* Idea:
+  * Run a new container detatched, with a command that keeps it running: ``docker run --name=initial_archautorepo -d archautorepo /bin/bash -c 'while true; do sleep 10; done'``
+  * We can now ``docker exec initial_archautorepo <command>`` and get back the command's output and exit code
+  * When done, ``docker stop initial_archautorepo && docker rm initial_archautorepo``
+  * So, `docker-py <https://github.com/docker/docker-py>`_ should be able to replicate this. Note that `Avoid docker-py <http://blog.bordage.pro/avoid-docker-py/>`_ has some good information in it.
+* Design Question: what's the right way to do this? I think I have an idea of the high-level overview:
+  1. In Python locally, clone the git repo for the package. Make sure the clone is clean and at the right hash, and no package files are in the directory.
+  2. In Python locally, we'll try to handle dependency resolution, at least figuring out if a package we're building depends on any other packages we're building, and build them first. We should also add deps back into our config file or cache them.
+  3. In Python, start a new docker container backgrounded, with two mount points: the git clone, and a workdir.
+  4. Place any locally-built deps into the workdir.
+  5. Use docker exec(s) to install the deps into the container.
+  6. Use docker exec(s) to install any repo (official) deps into the container.
+  7. Use a docker exec to run ``makepkg`` in the git clone directory; capture the STDERR, STDOUT and exit code.
+  8. In Python locally, find the package file and move it to the right destination (the workdir?)
+  9. Repeat for all packages.
+  10. Put the packages in a repo.
