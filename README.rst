@@ -41,6 +41,11 @@ against using it:
    packages, building them in the right order. There doesn't seem to be any sane way to acheive that in Jenkins, except either re-running
    the jobs over and over again until they succeed or altering the job configuration outside of Jenkins.
 
+There's no reason why this project couldn't be run inside one or more Jenkins jobs, and that probably makes sense for anyone who already has
+an instance running or is comfortable using it (for my own packages, I'll probably do that, and use GitHub hooks to trigger the jobs). But
+I don't think it should be a requirement or assumption. If parallelization is desired, it wouldn't be too difficult for me to add a component
+that performs the dependency solving, and then triggers Jenkins jobs to build specific subsets of the packages.
+
 References
 ==========
 
