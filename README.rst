@@ -43,19 +43,26 @@ Status
 ======
 
 * Docker is at least minimally working:
+
   * Build the docker image: ``docker build -t archautorepo .``; It should exit with something like ``Successfully built <IMAGE_ID>``
   * Run bash in the image to confirm it works: ``docker run --name=initial_archautorepo --rm -i -t archautorepo /bin/bash`` (the ``--rm`` automatically deletes the container when exited)
+
 * Docker notes:
+
   * List all containers with ``docker ps -a`` and then delete the container you just used with ``docker rm initial_archautorepo``
   * You can also add a ``--rm`` to the ``run`` command to remove the container automatically when the process exits
   * mount pwd as a volume at /localfs and run the command in it: ``docker run -v /localfs:\`pwd\` -w /localfs -i -t IMAGE_NAME COMMAND``
   * ``docker run --cidfile /path/to/file`` writes the container ID to /path/to/file and closes the file when the run exits
+
 * Idea:
+
   * Run a new container detatched, with a command that keeps it running: ``docker run --name=initial_archautorepo -d archautorepo /bin/bash -c 'while true; do sleep 10; done'``
   * We can now ``docker exec initial_archautorepo <command>`` and get back the command's output and exit code
   * When done, ``docker stop initial_archautorepo && docker rm initial_archautorepo``
   * So, `docker-py <https://github.com/docker/docker-py>`_ should be able to replicate this. Note that `Avoid docker-py <http://blog.bordage.pro/avoid-docker-py/>`_ has some good information in it.
+
 * Design Question: what's the right way to do this? I think I have an idea of the high-level overview:
+
   1. In Python locally, clone the git repo for the package. Make sure the clone is clean and at the right hash, and no package files are in the directory.
   2. In Python locally, we'll try to handle dependency resolution, at least figuring out if a package we're building depends on any other packages we're building, and build them first. We should also add deps back into our config file or cache them.
   3. In Python, start a new docker container backgrounded, with two mount points: the git clone, and a workdir.
