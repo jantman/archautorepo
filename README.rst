@@ -14,7 +14,7 @@ This is just a concept right now. The plan is:
 * A helper script to add git repos (by URL) to the config file
 * A helper script that clones all repos in the config file, and if there are any commits on master past the hash specified in the config file, shows you a diff to review. Assuming you accept it, the config file is updated for the new hash (this is intended to be an easy way for you to manually verify the safety of package contants, per the `AUR documentation <https://wiki.archlinux.org/index.php/Arch_User_Repository#Build_and_install_the_package>`_).
 * An option to bypass any commit hashes in the config file, and just build everything from master.
-* The build process will run inside a `Docker <https://www.docker.com/>`_ container for safety and isolation.
+* The build process will run inside a `Docker <https://www.docker.com/>`_ container for safety and isolation; there should be an option (i.e. for use in Jenkins, or direct use within a safe/isolated environment) to skip the Docker isolation and run directly on the syste,
 * A metadata generation script, which essentially fires up an isolated bash session, sources the PKGBUILD file, captures the important variables, and saves them for later use.
 * The main script which installs required dependencies in a clean container, copies in (or mounts?) the source and then triggers a `makepkg` run, capturing the output (both logs and the resulting tarball) and the return code (overall success/failure).
 * A test script which uses a clean container or VM and attempts to install the newly-build package, run a pacman `--check` on it, and optionally run some manually-defined test commands (like actually running the software from the package).
