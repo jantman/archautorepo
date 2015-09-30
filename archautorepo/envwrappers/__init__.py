@@ -1,5 +1,5 @@
 """
-archautorepo/version.py
+archautorepo/envwrappers/__init__.py
 
 The latest version of this package is available at:
 <https://github.com/jantman/archautorepo>
@@ -36,3 +36,32 @@ AUTHORS:
 Jason Antman <jason@jasonantman.com> <http://www.jasonantman.com>
 ################################################################################
 """
+
+import abc
+
+class EnvWrapper(object):
+    """
+    ArchAutoRepo uses environment wrappers (EnvWrappers) to wrap all interaction
+    with the build environment, whether it is a Docker container, the local
+    system, or something new in the future (like a cloud instance). EnvWrappers
+    specify how to run the actual commands, as well as how to setup and tear
+    down the build environment. In addition, they provide context managers to
+    ensure that the build environment is properly torn down.
+
+    The EnvWrapper metaclass specifies the interface to be implemented by all
+    EnvWrapper types, by using Python's
+    `abc <https://docs.python.org/2/library/abc.html>`_ abstract base class
+    functionality.
+
+    All EnvWrapper classes should be of type EnvWrapper.
+    """
+
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self):
+        pass
+
+    # context manager(s)?
+    # https://docs.python.org/2/library/contextlib.html
+    # https://www.python.org/dev/peps/pep-0343/
+    
