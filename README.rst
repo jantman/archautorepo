@@ -49,6 +49,10 @@ that performs the dependency solving, and then triggers Jenkins jobs to build sp
 References
 ==========
 
+* `my AUR forum thread <https://bbs.archlinux.org/viewtopic.php?pid=1613513>`_
+* Before starting work on this, check out some of the `AUR Helpers <https://wiki.archlinux.org/index.php/AUR_helpers>`_ to see if any of them fit my purposes. There are sme tools for trying to automatically update PKGBUILDs from upstream, as well as `aurutils <https://github.com/AladW/aurutils>`_ that includes a build script, a recursive depsolving script, and a script to only build packages that have been updated. There's also `pkgbuilder <https://github.com/Kwpolska/pkgbuilder>`_ that's a Python-based AUR helper.
+* Arch has their own build server at `http://pkgbuild.com/ <http://pkgbuild.com/>`_ (docs `on wiki <https://wiki.archlinux.org/index.php/DeveloperWiki:PKGBUILD.com>`_). The `Build machines <https://wiki.archlinux.org/index.php/DeveloperWiki:Build_machines>`_ wiki article gives some information about it, and the tools on it - including the comment, "makechrootpkg - PKGBUILD.com uses a modified version of the standard makechrootpkg implementation that adds queueing and integrated architecture selection. ". Maybe I can get some information or source code for this stuff? There's a comment on the wiki, "If you need access to the build server, please send me an email at ibiru@archlinux.org with [Build Server] in the subject line."
+* `AurJson <https://wiki.archlinux.org/index.php/AurJson>`_ is a JSON HTTP interface to the AUR which includes search functionality, as well as returning information (effectively the PKGBUILD, including version) about a package by name. There's also a `python3-aur <http://xyne.archlinux.ca/projects/python3-aur/>`_ package that provides a client for it. There's also a similar interface for the official repos `here <https://aur.archlinux.org/rpc.php>`_ with some docs on it `on the wiki <https://wiki.archlinux.org/index.php/Official_repositories_web_interface>`_.
 * can we use one or more of the `AUR Helpers <https://wiki.archlinux.org/index.php/AUR_helpers>`_ to do part of this?
 * The `virtualbox/Vagrant box <https://github.com/jantman/packer-arch-workstation>`_ that I use for testing my archlinux workstation puppet stuff
 * `Dockerfile <http://ebalaskas.gr/wiki/Dockerfile/archlinux/openssh>`_ for Arch with SSH
@@ -60,6 +64,14 @@ References
 * maybe `repose <https://github.com/vodik/repose>`_ contains the logic we need to work with the repository?
 * `openSuSE Build Service <https://build.opensuse.org/>`_ is publicly accessible and free, and can build for many popular distributions including "Arch Core" and "Arch Extras". It has a `ReST API <https://build.opensuse.org/apidocs/>`_, so theoretically it could be automated to provide the build infrastructure. It also _seems_ to allow building of any package.
 * The source to Arch/Pacman's `repo-add <https://projects.archlinux.org/pacman.git/tree/scripts/repo-add.sh.in>`_, which is just a shell script
+* `makepkg <https://wiki.archlinux.org/index.php/Makepkg>`_ takes a ``-s/--syncdeps`` flag that will attempt to resolve and install dependencies before build. This might simplify some of our depsolving logic.
+* `namcap <https://wiki.archlinux.org/index.php/Namcap>`_ to check for errors in a PKGBUILD and the resulting package
+* `ccache <https://wiki.archlinux.org/index.php/Ccache>`_ in the build process?
+* The `AUR Trusted User Guidelines on Accessing and Updating the Repository <https://wiki.archlinux.org/index.php/AUR_Trusted_User_Guidelines#Accessing_and_Updating_the_Repository>`_ mentions `mkarchroot <https://projects.archlinux.org/devtools.git/tree/mkarchroot.in>`_ / `makechrootpkg <https://projects.archlinux.org/devtools.git/tree/makechrootpkg.in>`_ and helper scripts in the `devtools <https://www.archlinux.org/packages/extra/any/devtools/>`_ package for building packages. "It is mandatory to build in a `clean chroot <https://wiki.archlinux.org/index.php/DeveloperWiki:Building_in_a_Clean_Chroot>`_".
+* `Arch Packaging Standards <https://wiki.archlinux.org/index.php/Arch_packaging_standards>`_
+* The `Internal Projects wiki page <https://wiki.archlinux.org/index.php/DeveloperWiki:Internal_Projects>`_ lists "Packaging Automation" and "Server Administration" projects and contacts for them.
+* Arch Linux infrastructure `server configuration <https://wiki.archlinux.org/index.php/Category:DeveloperWiki:Server_Configuration>`_
+* A blog post on `making mkarchroot more LXC-friendly <http://blog.mudy.info/tag/mkarchroot/>`_
 
 Status
 ======
