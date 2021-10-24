@@ -1,11 +1,11 @@
 arch-autorepo
 -------------
 
-.. image:: http://www.repostatus.org/badges/1.0.0/concept.svg
-   :alt: Project Status: Concept - Minimal or no implementation has been done yet.
-   :target: http://www.repostatus.org/#concept
+.. image:: https://www.repostatus.org/badges/latest/abandoned.svg
+   :alt: Project Status: Abandoned – Initial development has started, but there has not yet been a stable, usable release; the project has been abandoned and the author(s) do not intend on continuing development.
+   :target: https://www.repostatus.org/#abandoned
 
-Automatic Arch Linux package rebuilds and repository creation.
+**ABANDONED** - Automatic Arch Linux package rebuilds and repository creation.
 
 This is just a concept right now. The plan is:
 
